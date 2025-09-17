@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-// GET /api/workflows - Get all workflows
-export async function GET() {
+// GET /api/workflows - Get all workflows for a specific user
+// request: NextRequest is the parameter called request of type NextRequest
+export async function GET(request: NextRequest)  {
   try {
+    const { searchParams } = new URL(request.url)
+    const username = searchParams.get('username')
+
+    if (!username) {
+      return NextResponse.json({ error: 'Username is required' }, { status: 400 })
+    }
+
     const { data, error } = await supabase
       .from('workflows')
       .select('*')
+      .eq('username', username)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -22,15 +31,15 @@ export async function GET() {
 // POST /api/workflows - Create a new workflow
 export async function POST(request: NextRequest) {
   try {
-    const { name, nodes, edges } = await request.json()
+    const { name, nodes, edges, username } = await request.json()
 
-    if (!name || !nodes || !edges) {
+    if (!name || !nodes || !edges || !username) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     const { data, error } = await supabase
       .from('workflows')
-      .insert([{ name, nodes, edges }])
+      .insert([{ name, nodes, edges, username }])
       .select()
       .single()
 

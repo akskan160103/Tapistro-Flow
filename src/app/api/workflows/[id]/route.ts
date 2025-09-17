@@ -7,10 +7,10 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { name, nodes, edges } = await request.json()
+    const { name, nodes, edges, username } = await request.json()
     const { id } = await params
 
-    if (!name || !nodes || !edges) {
+    if (!name || !nodes || !edges || !username) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -18,6 +18,7 @@ export async function PUT(
       .from('workflows')
       .update({ name, nodes, edges, updated_at: new Date().toISOString() })
       .eq('id', id)
+      .eq('username', username)
       .select()
       .single()
 
@@ -38,11 +39,19 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
+    const { searchParams } = new URL(request.url)
+    const username = searchParams.get('username')
 
+    if (!username) {
+      return NextResponse.json({ error: 'Username is required' }, { status: 400 })
+    }
+
+    // This makes sure that a user can only delete their own workflow although this is automatically enforced by filtering displayed workflows by username
     const { error } = await supabase
       .from('workflows')
       .delete()
       .eq('id', id)
+      .eq('username', username)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

@@ -11,6 +11,7 @@ export interface Workflow {
   name: string
   nodes: any[]
   edges: any[]
+  username: string
   created_at: string
   updated_at: string
 }
