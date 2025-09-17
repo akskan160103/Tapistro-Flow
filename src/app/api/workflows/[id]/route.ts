@@ -4,11 +4,11 @@ import { supabase } from '@/lib/supabase'
 // PUT /api/workflows/[id] - Update a workflow
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { name, nodes, edges } = await request.json()
-    const { id } = params
+    const { id } = await params
 
     if (!name || !nodes || !edges) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -34,10 +34,10 @@ export async function PUT(
 // DELETE /api/workflows/[id] - Delete a workflow
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const { error } = await supabase
       .from('workflows')

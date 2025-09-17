@@ -15,18 +15,12 @@ import {
   IconButton,
   Typography,
   Chip,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
-import { Save, FolderOpen, Delete, Add } from '@mui/icons-material';  
-
-interface Workflow {
-  id: string;
-  name: string;
-  nodes: any[];
-  edges: any[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { Save, FolderOpen, Delete, Add } from '@mui/icons-material';
+import { DatabaseService } from '@/lib/database';
+import { Workflow } from '@/lib/supabase';  
 
 interface WorkflowManagerProps {
   currentNodes: any[];
@@ -48,59 +42,72 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   const [workflowName, setWorkflowName] = useState('');
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Load workflows from localStorage on component mount
+  // Load workflows from database on component mount
   useEffect(() => {
-    const savedWorkflows = localStorage.getItem('workflows');
-    if (savedWorkflows) {
-      setWorkflows(JSON.parse(savedWorkflows));
-    }
+    loadWorkflows();
   }, []);
 
-  // Save workflows to localStorage whenever workflows change
-  useEffect(() => {
-    localStorage.setItem('workflows', JSON.stringify(workflows));
-  }, [workflows]);
+  const loadWorkflows = async () => {
+    try {
+      setLoading(true);
+      const workflowsData = await DatabaseService.getWorkflows();
+      setWorkflows(workflowsData);
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Failed to load workflows' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleUpdateWorkflow = () => {
+  const handleUpdateWorkflow = async () => {
     if (!currentWorkflowId) {
       setAlert({ type: 'error', message: 'No workflow loaded to update' });
       return;
     }
 
-    const workflow: Workflow = {
-      id: currentWorkflowId,
-      name: currentWorkflow?.name || 'Untitled Workflow',
-      nodes: currentNodes,
-      edges: currentEdges,
-      createdAt: currentWorkflow?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    setWorkflows(prev => prev.map(w => w.id === currentWorkflowId ? workflow : w));
-    setAlert({ type: 'success', message: 'Workflow updated successfully' });
+    try {
+      setLoading(true);
+      const workflow = await DatabaseService.updateWorkflow(currentWorkflowId, {
+        name: currentWorkflow?.name || 'Untitled Workflow',
+        nodes: currentNodes,
+        edges: currentEdges
+      });
+      
+      setWorkflows(prev => prev.map(w => w.id === currentWorkflowId ? workflow : w));
+      setAlert({ type: 'success', message: 'Workflow updated successfully' });
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Failed to update workflow' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveAsWorkflow = () => {
+  const handleSaveAsWorkflow = async () => {
     if (!workflowName.trim()) {
       setAlert({ type: 'error', message: 'Please enter a workflow name' });
       return;
     }
 
-    const workflow: Workflow = {
-      id: `workflow-${Date.now()}`,
-      name: workflowName.trim(),
-      nodes: currentNodes,
-      edges: currentEdges,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    setWorkflows(prev => [...prev, workflow]);
-    setCurrentWorkflowId(workflow.id);
-    setAlert({ type: 'success', message: 'Workflow saved as new copy' });
-    setSaveAsDialogOpen(false);
-    setWorkflowName('');
+    try {
+      setLoading(true);
+      const workflow = await DatabaseService.createWorkflow({
+        name: workflowName.trim(),
+        nodes: currentNodes,
+        edges: currentEdges
+      });
+      
+      setWorkflows(prev => [...prev, workflow]);
+      setCurrentWorkflowId(workflow.id);
+      setAlert({ type: 'success', message: 'Workflow saved as new copy' });
+      setSaveAsDialogOpen(false);
+      setWorkflowName('');
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Failed to save workflow' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLoadWorkflow = (workflow: Workflow) => {
@@ -110,13 +117,21 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
     setAlert({ type: 'success', message: `Loaded workflow: ${workflow.name}` });
   };
 
-  const handleDeleteWorkflow = (workflowId: string) => {
-    setWorkflows(prev => prev.filter(w => w.id !== workflowId));
-    if (currentWorkflowId === workflowId) {
-      setCurrentWorkflowId(null);
-      onClearWorkflow();
+  const handleDeleteWorkflow = async (workflowId: string) => {
+    try {
+      setLoading(true);
+      await DatabaseService.deleteWorkflow(workflowId);
+      setWorkflows(prev => prev.filter(w => w.id !== workflowId));
+      if (currentWorkflowId === workflowId) {
+        setCurrentWorkflowId(null);
+        onClearWorkflow();
+      }
+      setAlert({ type: 'success', message: 'Workflow deleted successfully' });
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Failed to delete workflow' });
+    } finally {
+      setLoading(false);
     }
-    setAlert({ type: 'success', message: 'Workflow deleted successfully' });
   };
 
   const handleNewWorkflow = () => {
@@ -143,9 +158,9 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         {currentWorkflowId ? (
           <Button
             variant="contained"
-            startIcon={<Save />}
+            startIcon={loading ? <CircularProgress size={20} /> : <Save />}
             onClick={handleUpdateWorkflow}
-            disabled={currentNodes.length === 0}
+            disabled={currentNodes.length === 0 || loading}
           >
             Update Workflow
           </Button>
@@ -162,9 +177,9 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
 
         <Button
           variant="outlined"
-          startIcon={<Save />}
+          startIcon={loading ? <CircularProgress size={20} /> : <Save />}
           onClick={() => setSaveAsDialogOpen(true)}
-          disabled={currentNodes.length === 0}
+          disabled={currentNodes.length === 0 || loading}
         >
           Save As...
         </Button>
@@ -172,10 +187,13 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         <Button
           variant="outlined"
           startIcon={<FolderOpen />}
-          onClick={() => setLoadDialogOpen(true)}
-          disabled={workflows.length === 0}
+          onClick={async () => {
+            await loadWorkflows();
+            setLoadDialogOpen(true);
+          }}
+          disabled={loading}
         >
-          Load Workflow
+          {loading ? <CircularProgress size={20} /> : 'Load Workflow'}
         </Button>
 
         <Button
@@ -215,9 +233,9 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSaveAsDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleSaveAsWorkflow} variant="contained">
-            Save
+          <Button onClick={() => setSaveAsDialogOpen(false)} disabled={loading}>Cancel</Button>
+          <Button onClick={handleSaveAsWorkflow} variant="contained" disabled={loading}>
+            {loading ? <CircularProgress size={20} /> : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -255,7 +273,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                 >
                   <ListItemText
                     primary={workflow.name}
-                    secondary={`${workflow.nodes.length} nodes, ${workflow.edges.length} connections • Updated: ${new Date(workflow.updatedAt).toLocaleDateString()}`}
+                    secondary={`${workflow.nodes.length} nodes, ${workflow.edges.length} connections • Updated: ${new Date(workflow.updated_at).toLocaleDateString()}`}
                   />
                 </ListItem>
               ))}
