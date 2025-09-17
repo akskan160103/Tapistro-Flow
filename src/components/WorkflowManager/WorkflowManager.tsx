@@ -20,7 +20,8 @@ import {
 } from '@mui/material';
 import { Save, FolderOpen, Delete, Add } from '@mui/icons-material';
 import { DatabaseService } from '@/lib/database';
-import { Workflow } from '@/lib/supabase';  
+import { Workflow } from '@/lib/supabase';
+import { useUser } from '@/contexts/UserContext';  
 
 interface WorkflowManagerProps {
   currentNodes: any[];
@@ -35,6 +36,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   onLoadWorkflow,
   onClearWorkflow
 }) => {
+  const { username, logout } = useUser();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [currentWorkflowId, setCurrentWorkflowId] = useState<string | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
@@ -44,15 +46,17 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Load workflows from database on component mount
+  // Load workflows from database on component mount and when username changes
   useEffect(() => {
     loadWorkflows();
-  }, []);
+  }, [username]);
 
   const loadWorkflows = async () => {
+    if (!username) return;
+    
     try {
       setLoading(true);
-      const workflowsData = await DatabaseService.getWorkflows();
+      const workflowsData = await DatabaseService.getWorkflows(username);
       setWorkflows(workflowsData);
     } catch (error) {
       setAlert({ type: 'error', message: 'Failed to load workflows' });
@@ -62,7 +66,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   };
 
   const handleUpdateWorkflow = async () => {
-    if (!currentWorkflowId) {
+    if (!currentWorkflowId || !username) {
       setAlert({ type: 'error', message: 'No workflow loaded to update' });
       return;
     }
@@ -72,7 +76,8 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
       const workflow = await DatabaseService.updateWorkflow(currentWorkflowId, {
         name: currentWorkflow?.name || 'Untitled Workflow',
         nodes: currentNodes,
-        edges: currentEdges
+        edges: currentEdges,
+        username: username
       });
       
       setWorkflows(prev => prev.map(w => w.id === currentWorkflowId ? workflow : w));
@@ -85,7 +90,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   };
 
   const handleSaveAsWorkflow = async () => {
-    if (!workflowName.trim()) {
+    if (!workflowName.trim() || !username) {
       setAlert({ type: 'error', message: 'Please enter a workflow name' });
       return;
     }
@@ -95,7 +100,8 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
       const workflow = await DatabaseService.createWorkflow({
         name: workflowName.trim(),
         nodes: currentNodes,
-        edges: currentEdges
+        edges: currentEdges,
+        username: username
       });
       
       setWorkflows(prev => [...prev, workflow]);
@@ -118,9 +124,11 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   };
 
   const handleDeleteWorkflow = async (workflowId: string) => {
+    if (!username) return;
+    
     try {
       setLoading(true);
-      await DatabaseService.deleteWorkflow(workflowId);
+      await DatabaseService.deleteWorkflow(workflowId, username);
       setWorkflows(prev => prev.filter(w => w.id !== workflowId));
       if (currentWorkflowId === workflowId) {
         setCurrentWorkflowId(null);
@@ -211,6 +219,21 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             variant="outlined"
           />
         )}
+
+        <Chip
+          label={`Logged in as: ${username}`}
+          color="secondary"
+          variant="outlined"
+        />
+
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={logout}
+          size="small"
+        >
+          Logout
+        </Button>
 
         <Typography variant="body2" color="text.secondary">
           {currentNodes.length} nodes, {currentEdges.length} connections
