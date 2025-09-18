@@ -74,10 +74,15 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
           <TextField
             label="Duration"
-            type="number"
+            type="text"
             value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-            inputProps={{ min: 1 }}
+            onChange={(e) => {
+              const value = e.target.value
+              // Only allow positive integers
+              if (value === '' || /^\d+$/.test(value)) {
+                setDuration(value === '' ? 1 : Number(value))
+              }
+            }}
             fullWidth
             helperText="Enter the wait duration"
           />

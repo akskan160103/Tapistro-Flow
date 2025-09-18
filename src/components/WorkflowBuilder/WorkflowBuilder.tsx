@@ -6,10 +6,19 @@ import { ReactFlow, Background, Controls, MiniMap, Node, Edge, addEdge, Connecti
 import 'reactflow/dist/style.css';
 import NodePalette from '../NodePalette/NodePalette';
 import WorkflowManager from '../WorkflowManager/WorkflowManager';
+import { 
+  WaitNodeConfig, 
+  type WaitNodeData
+} from '../NodeConfigurations';
 
 const WorkflowBuilder: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [configuringNode, setConfiguringNode] = useState<{
+    id: string
+    type: 'wait' | 'send-email' | 'decision-split' | 'update-profile'
+    data?: any
+  } | null>(null);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -44,7 +53,8 @@ const WorkflowBuilder: React.FC = () => {
         position,
         data: { 
           label: nodeType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          nodeType 
+          nodeType,
+          config: null
         },
       };
 
@@ -62,6 +72,17 @@ const WorkflowBuilder: React.FC = () => {
     setNodes([]);
     setEdges([]);
   }, [setNodes, setEdges]);
+
+  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    const nodeType = node.data?.nodeType
+    if (nodeType) {
+      setConfiguringNode({
+        id: node.id,
+        type: nodeType,
+        data: node.data
+      })
+    }
+  }, []);
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -93,6 +114,7 @@ const WorkflowBuilder: React.FC = () => {
             onConnect={onConnect}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            onNodeClick={handleNodeClick}
             fitView
           >
             <Background />
@@ -101,6 +123,31 @@ const WorkflowBuilder: React.FC = () => {
           </ReactFlow>
         </Box>
       </Box>
+      
+      {/* Node Configuration Dialogs */}
+      {configuringNode?.type === 'wait' && (
+        <WaitNodeConfig
+          open={configuringNode.type === 'wait'}
+          onClose={() => setConfiguringNode(null)}
+          onSave={(config: WaitNodeData) => {
+            // Update node data with configuration and new label
+            setNodes(nodes.map(node => 
+              node.id === configuringNode.id 
+                ? { 
+                    ...node, 
+                    data: { 
+                      ...node.data, 
+                      config,
+                      label: `Wait for ${config.duration} ${config.timeUnit}`
+                    }
+                  }
+                : node
+            ))
+            setConfiguringNode(null)
+          }}
+          initialConfig={configuringNode.data?.config}
+        />
+      )}
     </Box>
   );
 };
