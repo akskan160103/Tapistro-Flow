@@ -9,20 +9,25 @@ interface UserContextType {
   logout: () => void
 }
 
+// This context can either store an object of type UserContextType or undefined
+// The value inside () is the default value of the context if no provider is found
 const UserContext = createContext<UserContextType | undefined>(undefined)
+
 
 export const useUser = () => {
   const context = useContext(UserContext)
   if (context === undefined) {
     throw new Error('useUser must be used within a UserProvider')
   }
-  return context
+  return context 
 }
 
 interface UserProviderProps {
   children: ReactNode
 }
 
+
+// UserProvider is a react component that provides the user context to its children
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [username, setUsername] = useState<string | null>(null)
 
