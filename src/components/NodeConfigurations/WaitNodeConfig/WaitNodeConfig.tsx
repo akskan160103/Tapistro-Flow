@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import './WaitNodeConfig.css'
 import {
   Dialog,
   DialogTitle,
@@ -71,7 +72,7 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
       </DialogTitle>
       
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
+        <Box className="wait-node-config-content">
           <TextField
             label="Duration"
             type="text"
@@ -101,8 +102,8 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
             </Select>
           </FormControl>
           
-          <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box className="wait-node-config-preview">
+            <Typography className="wait-node-config-preview-text">
               <strong>Preview:</strong> Wait for {duration} {timeUnit}
             </Typography>
           </Box>

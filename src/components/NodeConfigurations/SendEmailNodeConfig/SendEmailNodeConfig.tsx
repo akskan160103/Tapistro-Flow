@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import './SendEmailNodeConfig.css'
 import {
   Dialog,
   DialogTitle,
@@ -42,6 +43,7 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
   const [recipients, setRecipients] = useState<string[]>([])
   const [recipientType, setRecipientType] = useState<'all' | 'specific' | 'segment'>('all')
   const [newRecipient, setNewRecipient] = useState<string>('')
+  const [subjectError, setSubjectError] = useState<string>('')
 
   // Load initial configuration when dialog opens
   useEffect(() => {
@@ -71,8 +73,17 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
   }
 
   const handleSave = () => {
+    // Clear previous errors
+    setSubjectError('')
+    
+    // Validate required fields
+    if (!subject.trim()) {
+      setSubjectError('Please enter an email subject')
+      return
+    }
+
     const config: SendEmailNodeData = {
-      subject,
+      subject: subject.trim(),
       template,
       recipients,
       recipientType
@@ -94,14 +105,21 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
       </DialogTitle>
       
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
+        <Box className="send-email-config-content">
           <TextField
             label="Email Subject"
             value={subject}
-            onChange={(e) => setSubject(e.target.value)}
+            onChange={(e) => {
+              setSubject(e.target.value)
+              // Clear error when user starts typing
+              if (subjectError) {
+                setSubjectError('')
+              }
+            }}
             fullWidth
             required
-            helperText="Enter the email subject line"
+            error={!!subjectError}
+            helperText={subjectError || "Enter the email subject line"}
           />
           
           <TextField
@@ -128,8 +146,8 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
           </FormControl>
           
           {recipientType === 'specific' && (
-            <Box>
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+            <Box className="recipient-section">
+              <Box className="recipient-input-container">
                 <TextField
                   label="Add Recipient Email"
                   value={newRecipient}
@@ -146,7 +164,7 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
                 </Button>
               </Box>
               
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              <Box className="recipient-chips">
                 {recipients.map((recipient, index) => (
                   <Chip
                     key={index}
@@ -160,8 +178,8 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
             </Box>
           )}
           
-          <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box className="send-email-config-preview">
+            <Typography className="send-email-config-preview-text">
               <strong>Preview:</strong> Send email "{subject}" to {recipientType === 'all' ? 'all users' : `${recipients.length} recipients`}
             </Typography>
           </Box>

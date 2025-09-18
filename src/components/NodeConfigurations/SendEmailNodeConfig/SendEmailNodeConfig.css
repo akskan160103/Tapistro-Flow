@@ -1,0 +1,46 @@
+/* SendEmailNodeConfig Component Styles */
+
+.send-email-config-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.recipient-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recipient-input-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.recipient-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.send-email-config-preview {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.send-email-config-preview-text {
+  font-size: 14px;
+  color: #666;
+}
+
+.send-email-config-preview-text strong {
+  font-weight: 600;
+}
+
+/* Error styling */
+.send-email-config-content .MuiTextField-root .MuiFormHelperText-root.Mui-error {
+  color: #d32f2f;
+}

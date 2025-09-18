@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import './DecisionSplitNodeConfig.css'
 import {
   Dialog,
   DialogTitle,
@@ -110,8 +111,8 @@ const DecisionSplitNodeConfig: React.FC<DecisionSplitNodeConfigProps> = ({
       </DialogTitle>
       
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box className="decision-split-config-content">
+          <Box className="conditions-header">
             <Typography variant="h6">Conditions</Typography>
             <Button
               variant="outlined"
@@ -123,26 +124,26 @@ const DecisionSplitNodeConfig: React.FC<DecisionSplitNodeConfigProps> = ({
           </Box>
           
           {conditions.length === 0 ? (
-            <Box sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.100', borderRadius: 1 }}>
+            <Box className="no-conditions-message">
               <Typography variant="body2" color="text.secondary">
                 No conditions defined. Click "Add Condition" to create branching logic.
               </Typography>
             </Box>
           ) : (
-            <List>
+            <List className="conditions-list">
               {conditions.map((condition, index) => (
-                <ListItem key={condition.id} sx={{ border: 1, borderColor: 'grey.300', borderRadius: 1, mb: 1 }}>
+                <ListItem key={condition.id} className="condition-item">
                   <ListItemText
                     primary={
-                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                      <Box className="condition-fields">
                         <TextField
                           label="Field"
                           value={condition.field}
                           onChange={(e) => updateCondition(condition.id, { field: e.target.value })}
                           size="small"
-                          sx={{ minWidth: 120 }}
+                          className="condition-field-input"
                         />
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <FormControl size="small" className="condition-operator-input">
                           <InputLabel>Operator</InputLabel>
                           <Select
                             value={condition.operator}
@@ -161,14 +162,14 @@ const DecisionSplitNodeConfig: React.FC<DecisionSplitNodeConfigProps> = ({
                           value={condition.value}
                           onChange={(e) => updateCondition(condition.id, { value: e.target.value })}
                           size="small"
-                          sx={{ minWidth: 120 }}
+                          className="condition-value-input"
                         />
                         <TextField
                           label="Path Label"
                           value={condition.label}
                           onChange={(e) => updateCondition(condition.id, { label: e.target.value })}
                           size="small"
-                          sx={{ minWidth: 120 }}
+                          className="condition-label-input"
                         />
                       </Box>
                     }
@@ -195,8 +196,8 @@ const DecisionSplitNodeConfig: React.FC<DecisionSplitNodeConfigProps> = ({
             helperText="Label for the default path when no conditions match"
           />
           
-          <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box className="decision-split-config-preview">
+            <Typography className="decision-split-config-preview-text">
               <strong>Preview:</strong> {conditions.length} condition{conditions.length !== 1 ? 's' : ''} + 1 default path
             </Typography>
           </Box>

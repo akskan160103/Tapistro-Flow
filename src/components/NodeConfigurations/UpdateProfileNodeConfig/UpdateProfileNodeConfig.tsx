@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import './UpdateProfileNodeConfig.css'
 import {
   Dialog,
   DialogTitle,
@@ -102,8 +103,8 @@ const UpdateProfileNodeConfig: React.FC<UpdateProfileNodeConfigProps> = ({
       </DialogTitle>
       
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box className="update-profile-config-content">
+          <Box className="updates-header">
             <Typography variant="h6">Profile Updates</Typography>
             <Button
               variant="outlined"
@@ -115,27 +116,27 @@ const UpdateProfileNodeConfig: React.FC<UpdateProfileNodeConfigProps> = ({
           </Box>
           
           {updates.length === 0 ? (
-            <Box sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.100', borderRadius: 1 }}>
+            <Box className="no-updates-message">
               <Typography variant="body2" color="text.secondary">
                 No profile updates defined. Click "Add Update" to configure profile changes.
               </Typography>
             </Box>
           ) : (
-            <List>
+            <List className="updates-list">
               {updates.map((update, index) => (
-                <ListItem key={update.id} sx={{ border: 1, borderColor: 'grey.300', borderRadius: 1, mb: 1 }}>
+                <ListItem key={update.id} className="update-item">
                   <ListItemText
                     primary={
-                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                      <Box className="update-fields">
                         <TextField
                           label="Field Name"
                           value={update.field}
                           onChange={(e) => updateField(update.id, { field: e.target.value })}
                           size="small"
-                          sx={{ minWidth: 150 }}
+                          className="update-field-input"
                           placeholder="e.g., name, email, age"
                         />
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <FormControl size="small" className="update-operation-input">
                           <InputLabel>Operation</InputLabel>
                           <Select
                             value={update.operation}
@@ -153,7 +154,7 @@ const UpdateProfileNodeConfig: React.FC<UpdateProfileNodeConfigProps> = ({
                           value={update.value}
                           onChange={(e) => updateField(update.id, { value: e.target.value })}
                           size="small"
-                          sx={{ minWidth: 150 }}
+                          className="update-value-input"
                           placeholder="New value"
                         />
                       </Box>
@@ -173,12 +174,12 @@ const UpdateProfileNodeConfig: React.FC<UpdateProfileNodeConfigProps> = ({
             </List>
           )}
           
-          <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box className="update-profile-config-preview">
+            <Typography className="update-profile-config-preview-text">
               <strong>Preview:</strong> {updates.length} profile update{updates.length !== 1 ? 's' : ''} configured
             </Typography>
             {updates.length > 0 && (
-              <Box sx={{ mt: 1 }}>
+              <Box className="update-preview-details">
                 {updates.map((update, index) => (
                   <Typography key={index} variant="caption" display="block">
                     • {update.field} → {update.operation} "{update.value}"

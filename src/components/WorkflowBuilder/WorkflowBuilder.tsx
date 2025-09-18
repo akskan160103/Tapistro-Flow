@@ -8,7 +8,9 @@ import NodePalette from '../NodePalette/NodePalette';
 import WorkflowManager from '../WorkflowManager/WorkflowManager';
 import { 
   WaitNodeConfig, 
-  type WaitNodeData
+  SendEmailNodeConfig,
+  type WaitNodeData,
+  type SendEmailNodeData
 } from '../NodeConfigurations';
 
 const WorkflowBuilder: React.FC = () => {
@@ -84,6 +86,14 @@ const WorkflowBuilder: React.FC = () => {
     }
   }, []);
 
+  // Helper function to pluralize time units
+  const pluralizeTimeUnit = (duration: number, timeUnit: string) => {
+    if (duration === 1) {
+      return timeUnit.slice(0, -1); // Remove 's' from end
+    }
+    return timeUnit;
+  };
+
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Paper sx={{ p: 2, mb: 2 }}>
@@ -138,7 +148,31 @@ const WorkflowBuilder: React.FC = () => {
                     data: { 
                       ...node.data, 
                       config,
-                      label: `Wait for ${config.duration} ${config.timeUnit}`
+                      label: `Wait for ${config.duration} ${pluralizeTimeUnit(config.duration, config.timeUnit)}`
+                    }
+                  }
+                : node
+            ))
+            setConfiguringNode(null)
+          }}
+          initialConfig={configuringNode.data?.config}
+        />
+      )}
+      
+      {configuringNode?.type === 'send-email' && (
+        <SendEmailNodeConfig
+          open={configuringNode.type === 'send-email'}
+          onClose={() => setConfiguringNode(null)}
+          onSave={(config: SendEmailNodeData) => {
+            // Update node data with configuration and new label
+            setNodes(nodes.map(node => 
+              node.id === configuringNode.id 
+                ? { 
+                    ...node, 
+                    data: { 
+                      ...node.data, 
+                      config,
+                      label: `Send Email: ${config.subject || 'Untitled'}`
                     }
                   }
                 : node
