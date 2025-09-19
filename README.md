@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Visual Workflow Orchestration Builder
+
+A React-based visual workflow builder that allows users to create, configure, and validate customer journey workflows through an intuitive drag-and-drop interface.
+
+## Features
+
+- **Visual Workflow Builder**: Drag-and-drop interface for creating workflows
+- **Node Types**: Wait, Send Email, Decision Split, Update Profile nodes
+- **Real-time Validation**: Detects circular dependencies and orphaned nodes
+- **Workflow Management**: Save, load, and manage multiple workflows
+- **User Authentication**: Secure user sessions with Supabase
+- **Comprehensive Testing**: 36 unit tests covering all critical functionality
+
+## Technology Stack
+
+- **Frontend**: React 19, Next.js 15, TypeScript
+- **UI Framework**: Material-UI (MUI)
+- **Visual Editor**: React Flow
+- **State Management**: React Context API
+- **Database**: Supabase (PostgreSQL)
+- **Testing**: Jest + React Testing Library
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Add your Supabase credentials to `.env.local`
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Testing
+
+Run the comprehensive test suite:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Test Coverage:**
+- ✅ Database operations (CRUD)
+- ✅ User authentication flow
+- ✅ Workflow validation logic
+- ✅ Component behavior and interactions
+- ✅ Edge cases and error handling
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js app router
+├── components/            # React components
+│   ├── WorkflowBuilder/   # Main workflow builder
+│   ├── NodePalette/       # Node selection palette
+│   ├── WorkflowManager/   # Save/load workflows
+│   └── NodeConfigurations/ # Node config dialogs
+├── contexts/              # React contexts
+├── lib/                   # Utility libraries
+├── types/                 # TypeScript types
+└── utils/                 # Helper functions
 
-## Learn More
+tests/                     # Test files
+├── database.test.ts       # Database tests
+├── userContext.test.tsx   # Authentication tests
+├── workflowValidation.test.ts # Validation tests
+└── waitNodeConfig.test.tsx # Component tests
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Key Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Workflow Validation
+- **Circular Dependency Detection**: Prevents infinite loops
+- **Orphaned Node Detection**: Identifies disconnected nodes
+- **Real-time Feedback**: Immediate validation as you build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Node Types
+- **Wait Node**: Configurable time delays
+- **Send Email Node**: Email campaign configuration
+- **Decision Split Node**: Conditional branching logic
+- **Update Profile Node**: User profile modifications
 
-## Deploy on Vercel
+### User Experience
+- **Drag & Drop**: Intuitive node placement
+- **Visual Connections**: Clear workflow flow representation
+- **Configuration Dialogs**: Easy node setup
+- **Error Prevention**: Validation prevents invalid workflows
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Technical Decisions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [TECHNICAL_DECISIONS.md](./TECHNICAL_DECISIONS.md) for detailed information about:
+- Technology stack choices
+- Architecture decisions
+- Testing strategy
+- Performance considerations
+
+## Development
+
+### Code Quality
+- **TypeScript**: Full type safety
+- **ESLint**: Code linting and formatting
+- **Testing**: Comprehensive unit test coverage
+- **Error Handling**: Robust error boundaries
+
+### Contributing
+1. Follow the existing code patterns
+2. Add tests for new functionality
+3. Ensure all tests pass
+4. Follow TypeScript best practices
+
+## License
+
+This project is part of a technical assessment for Tapistro.

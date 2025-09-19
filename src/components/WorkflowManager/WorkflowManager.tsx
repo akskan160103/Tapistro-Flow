@@ -191,7 +191,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             variant="contained"
             startIcon={loading ? <CircularProgress size={20} /> : <Save />}
             onClick={handleUpdateWorkflow}
-            disabled={currentNodes.length === 0 || loading}
+            disabled={currentNodes.length === 0 || loading || hasValidationErrors}
           >
             Update Workflow
           </Button>
