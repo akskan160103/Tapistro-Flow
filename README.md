@@ -32,7 +32,7 @@ A React-based visual workflow builder that allows users to create, configure, an
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/akskan160103/Tapistro-Flow.git
    cd Tapistro-Flow
    ```
 
