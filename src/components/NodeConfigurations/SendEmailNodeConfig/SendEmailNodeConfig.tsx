@@ -22,6 +22,7 @@ interface SendEmailNodeConfigProps {
   open: boolean
   onClose: () => void
   onSave: (config: SendEmailNodeData) => void
+  onDelete?: () => void
   initialConfig?: SendEmailNodeData
 }
 
@@ -36,6 +37,7 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
   open,
   onClose,
   onSave,
+  onDelete,
   initialConfig
 }) => {
   const [subject, setSubject] = useState<string>('')
@@ -187,6 +189,11 @@ const SendEmailNodeConfig: React.FC<SendEmailNodeConfigProps> = ({
       </DialogContent>
       
       <DialogActions>
+        {onDelete && (
+          <Button onClick={onDelete} color="error" variant="outlined">
+            Delete Node
+          </Button>
+        )}
         <Button onClick={handleCancel} color="secondary">
           Cancel
         </Button>

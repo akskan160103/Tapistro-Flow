@@ -21,6 +21,7 @@ interface WaitNodeConfigProps {
   open: boolean
   onClose: () => void
   onSave: (config: WaitNodeData) => void
+  onDelete?: () => void
   initialConfig?: WaitNodeData
 }
 
@@ -33,6 +34,7 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
   open,
   onClose,
   onSave,
+  onDelete,
   initialConfig
 }) => {
   const [duration, setDuration] = useState<number>(1)
@@ -61,6 +63,14 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
 
   const handleCancel = () => {
     onClose()
+  }
+
+  // Helper function to pluralize time units for preview
+  const pluralizeTimeUnit = (duration: number, timeUnit: string) => {
+    if (duration === 1) {
+      return timeUnit.slice(0, -1); // Remove 's' from end
+    }
+    return timeUnit;
   }
 
   return (
@@ -104,13 +114,18 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
           
           <Box className="wait-node-config-preview">
             <Typography className="wait-node-config-preview-text">
-              <strong>Preview:</strong> Wait for {duration} {timeUnit}
+              <strong>Preview:</strong> Wait for {duration} {pluralizeTimeUnit(duration, timeUnit)}
             </Typography>
           </Box>
         </Box>
       </DialogContent>
       
       <DialogActions>
+        {onDelete && (
+          <Button onClick={onDelete} color="error" variant="outlined">
+            Delete Node
+          </Button>
+        )}
         <Button onClick={handleCancel} color="secondary">
           Cancel
         </Button>

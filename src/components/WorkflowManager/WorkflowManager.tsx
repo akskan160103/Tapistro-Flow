@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import './WorkflowManager.css';
 import {
   Box,
   Button,
@@ -151,18 +152,18 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   const currentWorkflow = workflows.find(w => w.id === currentWorkflowId);
 
   return (
-    <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0', backgroundColor: '#f5f5f5' }}>
+    <Box className="workflow-manager-container">
       {alert && (
         <Alert 
           severity={alert.type} 
           onClose={() => setAlert(null)}
-          sx={{ mb: 2 }}
+          className="workflow-manager-alert"
         >
           {alert.message}
         </Alert>
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+      <Box className="workflow-manager-actions">
         {currentWorkflowId ? (
           <Button
             variant="contained"
@@ -276,7 +277,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                   key={workflow.id} 
                   divider
                   secondaryAction={
-                    <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Box className="workflow-manager-workflow-actions">
                       <Button
                         size="small"
                         variant="outlined"

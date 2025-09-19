@@ -1,0 +1,188 @@
+/* WorkflowManager Component Styles */
+
+.workflow-manager-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+}
+
+.workflow-manager-alert {
+  margin-bottom: 16px;
+}
+
+.workflow-manager-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.workflow-manager-user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.workflow-manager-user-chip {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.workflow-manager-logout-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.workflow-manager-logout-button:hover {
+  background-color: #d32f2f;
+}
+
+.workflow-manager-workflow-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.workflow-manager-workflow-item {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.workflow-manager-workflow-item:last-child {
+  border-bottom: none;
+}
+
+.workflow-manager-workflow-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.workflow-manager-workflow-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workflow-manager-workflow-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.workflow-manager-workflow-details {
+  font-size: 12px;
+  color: #666;
+}
+
+.workflow-manager-workflow-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.workflow-manager-load-button {
+  background-color: #2196f3;
+  color: white;
+  min-width: 80px;
+}
+
+.workflow-manager-load-button:hover {
+  background-color: #1976d2;
+}
+
+.workflow-manager-delete-button {
+  background-color: #f44336;
+  color: white;
+  min-width: 80px;
+}
+
+.workflow-manager-delete-button:hover {
+  background-color: #d32f2f;
+}
+
+.workflow-manager-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.workflow-manager-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.workflow-manager-empty-state-icon {
+  font-size: 48px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.workflow-manager-empty-state-text {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.workflow-manager-empty-state-subtext {
+  font-size: 14px;
+  color: #999;
+}
+
+.workflow-manager-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.workflow-manager-stats-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #666;
+}
+
+.workflow-manager-stats-icon {
+  font-size: 16px;
+}
+
+/* Loading states */
+.workflow-manager-button-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .workflow-manager-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .workflow-manager-user-info {
+    margin-left: 0;
+    justify-content: center;
+  }
+  
+  .workflow-manager-workflow-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .workflow-manager-workflow-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

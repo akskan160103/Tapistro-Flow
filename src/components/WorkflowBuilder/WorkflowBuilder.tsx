@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import { ReactFlow, Background, Controls, MiniMap, Node, Edge, addEdge, Connection, useNodesState, useEdgesState } from 'reactflow';
+import { ReactFlow, Background, Controls, MiniMap, Node, addEdge, Connection, useNodesState, useEdgesState, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
 import NodePalette from '../NodePalette/NodePalette';
 import WorkflowManager from '../WorkflowManager/WorkflowManager';
@@ -12,6 +12,7 @@ import {
   type WaitNodeData,
   type SendEmailNodeData
 } from '../NodeConfigurations';
+
 
 const WorkflowBuilder: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -26,6 +27,7 @@ const WorkflowBuilder: React.FC = () => {
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+
 
   const onDragStart = useCallback((event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -75,6 +77,7 @@ const WorkflowBuilder: React.FC = () => {
     setEdges([]);
   }, [setNodes, setEdges]);
 
+
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     const nodeType = node.data?.nodeType
     if (nodeType) {
@@ -85,6 +88,20 @@ const WorkflowBuilder: React.FC = () => {
       })
     }
   }, []);
+
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    console.log('Deleting node:', nodeId);
+    // Remove the node
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    
+    // Remove all edges connected to this node
+    setEdges((eds) => eds.filter((edge) => 
+      edge.source !== nodeId && edge.target !== nodeId
+    ));
+    
+    // Close configuration dialog if it was open for this node
+    setConfiguringNode(null);
+  }, [setNodes, setEdges]);
 
   // Helper function to pluralize time units
   const pluralizeTimeUnit = (duration: number, timeUnit: string) => {
@@ -125,6 +142,20 @@ const WorkflowBuilder: React.FC = () => {
             onDrop={onDrop}
             onDragOver={onDragOver}
             onNodeClick={handleNodeClick}
+            defaultEdgeOptions={{
+              type: 'smoothstep',
+              animated: false,
+              style: { 
+                strokeWidth: 2, 
+                stroke: '#b1b1b7' 
+              },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: '#b1b1b7',
+                width: 20,
+                height: 20,
+              },
+            }}
             fitView
           >
             <Background />
@@ -155,6 +186,7 @@ const WorkflowBuilder: React.FC = () => {
             ))
             setConfiguringNode(null)
           }}
+          onDelete={() => handleDeleteNode(configuringNode.id)}
           initialConfig={configuringNode.data?.config}
         />
       )}
@@ -179,6 +211,7 @@ const WorkflowBuilder: React.FC = () => {
             ))
             setConfiguringNode(null)
           }}
+          onDelete={() => handleDeleteNode(configuringNode.id)}
           initialConfig={configuringNode.data?.config}
         />
       )}
