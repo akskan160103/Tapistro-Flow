@@ -26,27 +26,41 @@ A React-based visual workflow builder that allows users to create, configure, an
 
 - Node.js 18+ 
 - npm or yarn
+- Supabase account (for database)
 
 ### Installation
 
-1. Clone the repository
-2. Install dependencies:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd Tapistro-Flow
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env.local
-   ```
-   Add your Supabase credentials to `.env.local`
+3. **Environment variables are already configured**
+   
+   The `.env` file with Supabase credentials is included in the repository for easy setup. No additional configuration needed!
 
-4. Run the development server:
+4. **Run the development server**
    ```bash
    npm run dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. **Open the application**
+   Navigate to [http://localhost:3000](http://localhost:3000) in your browser
+
+### Quick Start Guide
+
+1. **Login**: Create an account or login with existing credentials
+2. **Build Workflow**: Drag nodes from the palette to the canvas
+3. **Connect Nodes**: Draw connections between nodes to define flow
+4. **Configure Nodes**: Click on nodes to set up their properties
+5. **Save Workflow**: Use the "Save Workflow" button to persist your work
+6. **Validate**: The system automatically validates for circular dependencies and orphaned nodes
 
 ## Testing
 
@@ -110,6 +124,8 @@ tests/                     # Test files
 - **Visual Connections**: Clear workflow flow representation
 - **Configuration Dialogs**: Easy node setup
 - **Error Prevention**: Validation prevents invalid workflows
+- **Desktop Optimized**: Designed for laptop and desktop computers
+- **Mobile Warning**: Professional message for mobile users explaining desktop requirement
 
 ## Technical Decisions
 
@@ -119,19 +135,17 @@ See [TECHNICAL_DECISIONS.md](./TECHNICAL_DECISIONS.md) for detailed information 
 - Testing strategy
 - Performance considerations
 
-## Development
+### Common Issues
 
-### Code Quality
-- **TypeScript**: Full type safety
-- **ESLint**: Code linting and formatting
-- **Testing**: Comprehensive unit test coverage
-- **Error Handling**: Robust error boundaries
+**Environment Variables Not Loading:**
+- The `.env` file is included in the repository with pre-configured Supabase credentials
+- If you encounter issues, restart the development server
 
-### Contributing
-1. Follow the existing code patterns
-2. Add tests for new functionality
-3. Ensure all tests pass
-4. Follow TypeScript best practices
+**Mobile/Tablet Issues:**
+- Tapistro Flow is optimized for desktop and laptop computers
+- Mobile devices will show a professional warning message
+
+
 
 ## License
 

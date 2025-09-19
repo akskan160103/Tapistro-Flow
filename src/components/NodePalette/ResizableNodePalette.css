@@ -1,0 +1,121 @@
+/* ResizableNodePalette.css */
+.resizable-node-palette-container {
+  position: relative;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+
+.resizable-node-palette-content {
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.resizable-node-palette-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  background-color: transparent;
+  cursor: col-resize;
+  transition: background-color 0.2s ease;
+  z-index: 10;
+}
+
+.resizable-node-palette-resize-handle:hover {
+  background-color: rgba(25, 118, 210, 0.2);
+}
+
+.resizable-node-palette-resize-handle:active {
+  background-color: rgba(25, 118, 210, 0.3);
+}
+
+/* Add a subtle visual indicator */
+.resizable-node-palette-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 1px;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.resizable-node-palette-resize-handle:hover::after {
+  opacity: 1;
+  background-color: #1976d2;
+}
+
+/* Desktop Layout - Optimized for workflow building */
+@media (min-width: 769px) {
+  .resizable-node-palette-container {
+    width: 320px;
+    min-width: 200px;
+    max-width: 500px;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  }
+  
+  .resizable-node-palette-content {
+    padding: 20px;
+  }
+  
+  /* Compact mode for smaller widths */
+  .resizable-node-palette-container.compact {
+    .resizable-node-palette-content {
+      padding: 12px;
+    }
+    
+    .node-palette-title {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+    
+    .node-palette-button {
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .node-palette-primary {
+      font-size: 0.875rem;
+    }
+    
+    .node-palette-secondary {
+      font-size: 0.75rem;
+    }
+  }
+  
+  .node-palette-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  
+  .node-palette-button {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+  
+  .node-palette-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+  }
+}
+
+/* Mobile - Show warning message */
+@media (max-width: 768px) {
+  .resizable-node-palette-container {
+    display: none;
+  }
+}

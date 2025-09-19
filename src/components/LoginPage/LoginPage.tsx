@@ -53,7 +53,7 @@ const LoginPage: React.FC = () => {
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom align="center">
-            Workflow Builder
+            Tapistro Flow
           </Typography>
           
           <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 3 }}>

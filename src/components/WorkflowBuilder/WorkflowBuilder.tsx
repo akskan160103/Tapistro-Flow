@@ -2,9 +2,10 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
+import { Computer } from '@mui/icons-material';
 import { ReactFlow, Background, Controls, MiniMap, Node, addEdge, Connection, useNodesState, useEdgesState, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
-import NodePalette from '../NodePalette/NodePalette';
+import ResizableNodePalette from '../NodePalette/ResizableNodePalette';
 import WorkflowManager from '../WorkflowManager/WorkflowManager';
 import { 
   WaitNodeConfig, 
@@ -18,6 +19,7 @@ import {
 } from '../NodeConfigurations';
 import { WorkflowValidator, type ValidationResult } from '../../lib/workflowValidation';
 import './ValidationStatus.css';
+import './WorkflowBuilder.css';
 
 
 const WorkflowBuilder: React.FC = () => {
@@ -29,6 +31,7 @@ const WorkflowBuilder: React.FC = () => {
     data?: any
   } | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -58,44 +61,58 @@ const WorkflowBuilder: React.FC = () => {
         y: event.clientY - 100, // Adjust for header height
       };
 
-      // Create default config based on node type
-      let defaultConfig = null;
-      let defaultLabel = nodeType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
-      
-      switch (nodeType) {
-        case 'wait':
-          defaultConfig = { hours: 0, minutes: 1, seconds: 0 };
-          defaultLabel = 'Wait for 1m';
-          break;
-        case 'send-email':
-          defaultConfig = { subject: 'New Email', template: '', recipients: [], recipientType: 'all' };
-          defaultLabel = 'Send Email: New Email';
-          break;
-        case 'decision-split':
-          defaultConfig = { conditions: [], defaultPath: 'Default' };
-          defaultLabel = 'Decision Split';
-          break;
-        case 'update-profile':
-          defaultConfig = { updates: [] };
-          defaultLabel = 'Update Profile';
-          break;
-      }
-
-      const newNode: Node = {
-        id: `${nodeType}-${Date.now()}`,
-        type: 'default',
-        position,
-        data: { 
-          label: defaultLabel,
-          nodeType,
-          config: defaultConfig
-        },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
+      addNodeToCanvas(nodeType, position);
     },
     [setNodes]
   );
+
+  const addNodeToCanvas = useCallback((nodeType: string, position?: { x: number; y: number }) => {
+    // Create default config based on node type
+    let defaultConfig = null;
+    let defaultLabel = nodeType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    
+    switch (nodeType) {
+      case 'wait':
+        defaultConfig = { hours: 0, minutes: 1, seconds: 0 };
+        defaultLabel = 'Wait for 1m';
+        break;
+      case 'send-email':
+        defaultConfig = { subject: 'New Email', template: '', recipients: [], recipientType: 'all' };
+        defaultLabel = 'Send Email: New Email';
+        break;
+      case 'decision-split':
+        defaultConfig = { conditions: [], defaultPath: 'Default' };
+        defaultLabel = 'Decision Split';
+        break;
+      case 'update-profile':
+        defaultConfig = { updates: [] };
+        defaultLabel = 'Update Profile';
+        break;
+    }
+
+    // For mobile, center the node in the canvas
+    const finalPosition = position || {
+      x: 200,
+      y: 200
+    };
+
+    const newNode: Node = {
+      id: `${nodeType}-${Date.now()}`,
+      type: 'default',
+      position: finalPosition,
+      data: { 
+        label: defaultLabel,
+        nodeType,
+        config: defaultConfig
+      },
+    };
+
+    setNodes((nds) => nds.concat(newNode));
+  }, [setNodes]);
+
+  const handleNodePaletteClick = useCallback((nodeType: string) => {
+    addNodeToCanvas(nodeType);
+  }, [addNodeToCanvas]);
 
   const handleLoadWorkflow = useCallback((workflow: any) => {
     setNodes(workflow.nodes);
@@ -148,30 +165,45 @@ const WorkflowBuilder: React.FC = () => {
     validateWorkflow();
   }, [validateWorkflow]);
 
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="h4" component="h1">
-          Visual Workflow Builder
+    <Box className="workflow-builder-container">
+      <Paper className="workflow-builder-header">
+        <Typography className="workflow-builder-title" component="h1">
+          Tapistro Flow
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Drag and drop nodes to create your workflow
+        <Typography className="workflow-builder-subtitle">
+          Visual Workflow Builder
         </Typography>
       </Paper>
       
-      <WorkflowManager
-        currentNodes={nodes}
-        currentEdges={edges}
-        onLoadWorkflow={handleLoadWorkflow}
-        onClearWorkflow={handleClearWorkflow}
-        validationResult={validationResult}
-      />
+      {!isMobile && (
+        <WorkflowManager
+          currentNodes={nodes}
+          currentEdges={edges}
+          onLoadWorkflow={handleLoadWorkflow}
+          onClearWorkflow={handleClearWorkflow}
+          validationResult={validationResult}
+        />
+      )}
       
-      <Box sx={{ display: 'flex', flex: 1, gap: 2 }}>
-        <NodePalette onDragStart={onDragStart} />
+      <Box className="workflow-builder-main">
+        <ResizableNodePalette onDragStart={onDragStart} onNodeClick={handleNodePaletteClick} />
         
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box className="workflow-builder-canvas-container">
           {/* Validation Status - Only show structural issues */}
           {validationResult && !validationResult.isValid && (
             <Box className="validation-error-container">
@@ -199,7 +231,7 @@ const WorkflowBuilder: React.FC = () => {
             </Box>
           )}
         
-          <Box sx={{ flex: 1, border: '1px solid #e0e0e0', position: 'relative' }}>
+          <Box className="workflow-builder-canvas">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -231,28 +263,14 @@ const WorkflowBuilder: React.FC = () => {
           </ReactFlow>
           
           {isWorkflowEmpty && (
-            <Box sx={{ 
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              padding: 4,
-              textAlign: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              pointerEvents: 'none' // Allow clicks to pass through to ReactFlow
-            }}>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Box className="workflow-builder-empty-state">
+              <Typography className="workflow-builder-empty-title" gutterBottom>
                 Workflow is Empty
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              <Typography className="workflow-builder-empty-subtitle" sx={{ mb: 2 }}>
                 Drag nodes from the palette to start building your workflow
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography className="workflow-builder-empty-description">
                 Available nodes: Wait, Send Email, Decision Split, Update Profile
               </Typography>
             </Box>
@@ -260,6 +278,24 @@ const WorkflowBuilder: React.FC = () => {
           </Box>
         </Box>
       </Box>
+      
+      {/* Mobile Warning Message */}
+      {isMobile && (
+        <Box className="mobile-warning">
+          <Computer className="icon" />
+          <Typography variant="h5" component="h2">
+            Desktop Required
+          </Typography>
+          <Typography>
+            Tapistro Flow is optimized for desktop and laptop computers. 
+            Please use a larger screen for the best workflow building experience.
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Professional workflow builders like Zapier, Microsoft Power Automate, 
+            and Braze Journey Builder are also desktop-only applications.
+          </Typography>
+        </Box>
+      )}
       
       {/* Node Configuration Dialogs */}
       {configuringNode?.type === 'wait' && (

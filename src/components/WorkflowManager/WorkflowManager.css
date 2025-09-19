@@ -165,14 +165,22 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .workflow-manager-container {
+    padding: 12px;
+    gap: 12px;
+  }
+  
   .workflow-manager-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
   
   .workflow-manager-user-info {
     margin-left: 0;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   
   .workflow-manager-workflow-content {
@@ -184,5 +192,63 @@
   .workflow-manager-workflow-actions {
     width: 100%;
     justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  .workflow-manager-workflow-list {
+    max-height: 250px;
+  }
+  
+  .workflow-manager-workflow-item {
+    padding: 12px 8px;
+  }
+  
+  .workflow-manager-workflow-name {
+    font-size: 14px;
+  }
+  
+  .workflow-manager-workflow-details {
+    font-size: 11px;
+  }
+  
+  .workflow-manager-load-button,
+  .workflow-manager-delete-button {
+    min-width: 60px;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .workflow-manager-container {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .workflow-manager-actions {
+    gap: 8px;
+  }
+  
+  .workflow-manager-workflow-list {
+    max-height: 200px;
+  }
+  
+  .workflow-manager-workflow-item {
+    padding: 8px 4px;
+  }
+  
+  .workflow-manager-workflow-name {
+    font-size: 13px;
+  }
+  
+  .workflow-manager-workflow-details {
+    font-size: 10px;
+  }
+  
+  .workflow-manager-load-button,
+  .workflow-manager-delete-button {
+    min-width: 50px;
+    font-size: 11px;
+    padding: 4px 8px;
   }
 }
