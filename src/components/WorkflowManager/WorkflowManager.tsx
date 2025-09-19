@@ -51,6 +51,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
 
   // Load workflows from database on component mount and when username changes
   useEffect(() => {
@@ -154,6 +155,22 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
     setAlert({ type: 'success', message: 'Started new workflow' });
   };
 
+  const handleDeleteAccount = async () => {
+    if (!username) return;
+    
+    setLoading(true);
+    try {
+      await DatabaseService.deleteAllWorkflows(username);
+      setAlert({ type: 'success', message: 'Account and all workflows deleted successfully' });
+      setDeleteAccountDialogOpen(false);
+      logout(); // Logout after successful deletion
+    } catch (error) {
+      setAlert({ type: 'error', message: 'Failed to delete account. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const currentWorkflow = workflows.find(w => w.id === currentWorkflowId);
 
   return (
@@ -235,6 +252,16 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         <Button
           variant="outlined"
           color="error"
+          onClick={() => setDeleteAccountDialogOpen(true)}
+          size="small"
+          disabled={loading}
+        >
+          Delete Account
+        </Button>
+
+        <Button
+          variant="outlined"
+          color="error"
           onClick={logout}
           size="small"
         >
@@ -311,6 +338,35 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setLoadDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog open={deleteAccountDialogOpen} onClose={() => setDeleteAccountDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Delete Account</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" gutterBottom>
+            Are you sure you want to delete your account?
+          </Typography>
+          <Typography variant="body2" color="error" gutterBottom>
+            This will permanently delete ALL your workflows and cannot be undone.
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You will be logged out after deletion.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteAccountDialogOpen(false)} disabled={loading}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteAccount} 
+            variant="contained" 
+            color="error" 
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={20} /> : 'Delete Account'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

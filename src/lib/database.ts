@@ -70,4 +70,15 @@ export class DatabaseService {
       throw new Error('Failed to delete workflow')
     }
   }
+
+  // Delete all workflows for a user
+  static async deleteAllWorkflows(username: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}?username=${encodeURIComponent(username)}`, {
+      method: 'DELETE',
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete all workflows')
+    }
+  }
 }
