@@ -26,8 +26,9 @@ interface WaitNodeConfigProps {
 }
 
 export interface WaitNodeData {
-  duration: number
-  timeUnit: 'seconds' | 'minutes' | 'hours' | 'days'
+  hours: number
+  minutes: number
+  seconds: number
 }
 
 const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
@@ -37,33 +38,52 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
   onDelete,
   initialConfig
 }) => {
-  const [duration, setDuration] = useState<string>('1')
-  const [timeUnit, setTimeUnit] = useState<'seconds' | 'minutes' | 'hours' | 'days'>('minutes')
-  const [durationError, setDurationError] = useState<string>('')
+  const [hours, setHours] = useState<string>('0')
+  const [minutes, setMinutes] = useState<string>('1')
+  const [seconds, setSeconds] = useState<string>('0')
+  const [validationError, setValidationError] = useState<string>('')
 
   // Load initial configuration when dialog opens
   useEffect(() => {
     if (open && initialConfig) {
-      setDuration(initialConfig.duration.toString())
-      setTimeUnit(initialConfig.timeUnit)
+      setHours(initialConfig.hours.toString())
+      setMinutes(initialConfig.minutes.toString())
+      setSeconds(initialConfig.seconds.toString())
     } else if (open) {
       // Reset to defaults when creating new node
-      setDuration('1')
-      setTimeUnit('minutes')
+      setHours('0')
+      setMinutes('1')
+      setSeconds('0')
     }
   }, [open, initialConfig])
 
   const handleSave = () => {
-    // Convert string to number and validate
-    const durationNum = parseInt(duration)
-    if (isNaN(durationNum) || durationNum <= 0) {
-      setDurationError('Please enter a valid duration (positive number)')
-      return // Don't save if invalid
+    // Convert strings to numbers and validate
+    const hoursNum = parseInt(hours) || 0
+    const minutesNum = parseInt(minutes) || 0
+    const secondsNum = parseInt(seconds) || 0
+    
+    // At least one field must have a value > 0
+    if (hoursNum === 0 && minutesNum === 0 && secondsNum === 0) {
+      setValidationError('Please enter at least one time value (hours, minutes, or seconds)')
+      return // Don't save if all are zero
+    }
+    
+    // Validate individual values
+    if (hoursNum < 0 || minutesNum < 0 || secondsNum < 0) {
+      setValidationError('Time values cannot be negative')
+      return
+    }
+    
+    if (minutesNum >= 60 || secondsNum >= 60) {
+      setValidationError('Minutes and seconds must be less than 60')
+      return
     }
     
     const config: WaitNodeData = {
-      duration: durationNum,
-      timeUnit
+      hours: hoursNum,
+      minutes: minutesNum,
+      seconds: secondsNum
     }
     onSave(config)
     onClose()
@@ -73,13 +93,18 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
     onClose()
   }
 
-  // Helper function to pluralize time units for preview
-  const pluralizeTimeUnit = (duration: string, timeUnit: string) => {
-    const durationNum = parseInt(duration)
-    if (isNaN(durationNum) || durationNum === 1) {
-      return timeUnit.slice(0, -1); // Remove 's' from end
-    }
-    return timeUnit;
+  // Helper function to format time display
+  const formatTimeDisplay = (h: string, m: string, s: string) => {
+    const hoursNum = parseInt(h) || 0
+    const minutesNum = parseInt(m) || 0
+    const secondsNum = parseInt(s) || 0
+    
+    const parts = []
+    if (hoursNum > 0) parts.push(`${hoursNum}h`)
+    if (minutesNum > 0) parts.push(`${minutesNum}m`)
+    if (secondsNum > 0) parts.push(`${secondsNum}s`)
+    
+    return parts.length > 0 ? parts.join(' ') : '0m'
   }
 
   return (
@@ -92,40 +117,60 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
       
       <DialogContent>
         <Box className="wait-node-config-content">
-          <TextField
-            label="Duration"
-            type="text"
-            value={duration}
-            onChange={(e) => {
-              const value = e.target.value
-              // Only allow positive integers or empty string
-              if (value === '' || /^\d+$/.test(value)) {
-                setDuration(value)
-                setDurationError('') // Clear error when valid input
-              }
-            }}
-            fullWidth
-            error={!!durationError}
-            helperText={durationError || "Enter the wait duration"}
-          />
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <TextField
+              label="Hours"
+              type="text"
+              value={hours}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '' || /^\d+$/.test(value)) {
+                  setHours(value)
+                  setValidationError('')
+                }
+              }}
+              sx={{ flex: 1 }}
+              error={!!validationError}
+            />
+            <TextField
+              label="Minutes"
+              type="text"
+              value={minutes}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '' || /^\d+$/.test(value)) {
+                  setMinutes(value)
+                  setValidationError('')
+                }
+              }}
+              sx={{ flex: 1 }}
+              error={!!validationError}
+            />
+            <TextField
+              label="Seconds"
+              type="text"
+              value={seconds}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '' || /^\d+$/.test(value)) {
+                  setSeconds(value)
+                  setValidationError('')
+                }
+              }}
+              sx={{ flex: 1 }}
+              error={!!validationError}
+            />
+          </Box>
           
-          <FormControl fullWidth>
-            <InputLabel>Time Unit</InputLabel>
-            <Select
-              value={timeUnit}
-              onChange={(e) => setTimeUnit(e.target.value as 'seconds' | 'minutes' | 'hours' | 'days')}
-              label="Time Unit"
-            >
-              <MenuItem value="seconds">Seconds</MenuItem>
-              <MenuItem value="minutes">Minutes</MenuItem>
-              <MenuItem value="hours">Hours</MenuItem>
-              <MenuItem value="days">Days</MenuItem>
-            </Select>
-          </FormControl>
+          {validationError && (
+            <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+              {validationError}
+            </Typography>
+          )}
           
           <Box className="wait-node-config-preview">
             <Typography className="wait-node-config-preview-text">
-              <strong>Preview:</strong> Wait for {duration} {pluralizeTimeUnit(duration, timeUnit)}
+              <strong>Preview:</strong> Wait for {formatTimeDisplay(hours, minutes, seconds)}
             </Typography>
           </Box>
         </Box>

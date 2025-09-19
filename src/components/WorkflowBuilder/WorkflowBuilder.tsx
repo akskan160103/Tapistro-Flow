@@ -64,8 +64,8 @@ const WorkflowBuilder: React.FC = () => {
       
       switch (nodeType) {
         case 'wait':
-          defaultConfig = { duration: 1, timeUnit: 'minutes' };
-          defaultLabel = 'Wait for 1 minute';
+          defaultConfig = { hours: 0, minutes: 1, seconds: 0 };
+          defaultLabel = 'Wait for 1m';
           break;
         case 'send-email':
           defaultConfig = { subject: 'New Email', template: '', recipients: [], recipientType: 'all' };
@@ -148,13 +148,6 @@ const WorkflowBuilder: React.FC = () => {
     validateWorkflow();
   }, [validateWorkflow]);
 
-  // Helper function to pluralize time units
-  const pluralizeTimeUnit = (duration: number, timeUnit: string) => {
-    if (duration === 1) {
-      return timeUnit.slice(0, -1); // Remove 's' from end
-    }
-    return timeUnit;
-  };
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -274,6 +267,15 @@ const WorkflowBuilder: React.FC = () => {
           open={configuringNode.type === 'wait'}
           onClose={() => setConfiguringNode(null)}
           onSave={(config: WaitNodeData) => {
+            // Format time display for label
+            const formatTimeDisplay = (h: number, m: number, s: number) => {
+              const parts = []
+              if (h > 0) parts.push(`${h}h`)
+              if (m > 0) parts.push(`${m}m`)
+              if (s > 0) parts.push(`${s}s`)
+              return parts.length > 0 ? parts.join(' ') : '0m'
+            }
+            
             // Update node data with configuration and new label
             setNodes(nodes.map(node => 
               node.id === configuringNode.id 
@@ -282,7 +284,7 @@ const WorkflowBuilder: React.FC = () => {
                     data: { 
                       ...node.data, 
                       config,
-                      label: `Wait for ${config.duration} ${pluralizeTimeUnit(config.duration, config.timeUnit)}`
+                      label: `Wait for ${formatTimeDisplay(config.hours, config.minutes, config.seconds)}`
                     }
                   }
                 : node
