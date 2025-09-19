@@ -107,6 +107,9 @@ const WorkflowBuilder: React.FC = () => {
     setConfiguringNode(null);
   }, [setNodes, setEdges]);
 
+  // Check if workflow is empty (no nodes)
+  const isWorkflowEmpty = nodes.length === 0;
+
   // Helper function to pluralize time units
   const pluralizeTimeUnit = (duration: number, timeUnit: string) => {
     if (duration === 1) {
@@ -136,7 +139,7 @@ const WorkflowBuilder: React.FC = () => {
       <Box sx={{ display: 'flex', flex: 1, gap: 2 }}>
         <NodePalette onDragStart={onDragStart} />
         
-        <Box sx={{ flex: 1, border: '1px solid #e0e0e0' }}>
+        <Box sx={{ flex: 1, border: '1px solid #e0e0e0', position: 'relative' }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -166,6 +169,34 @@ const WorkflowBuilder: React.FC = () => {
             <Controls />
             <MiniMap />
           </ReactFlow>
+          
+          {isWorkflowEmpty && (
+            <Box sx={{ 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              padding: 4,
+              textAlign: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              pointerEvents: 'none' // Allow clicks to pass through to ReactFlow
+            }}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                Workflow is Empty
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Drag nodes from the palette to start building your workflow
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Available nodes: Wait, Send Email, Decision Split, Update Profile
+              </Typography>
+            </Box>
+          )}
         </Box>
       </Box>
       
