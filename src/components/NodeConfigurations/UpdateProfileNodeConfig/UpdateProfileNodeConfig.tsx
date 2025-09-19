@@ -27,6 +27,7 @@ interface UpdateProfileNodeConfigProps {
   open: boolean
   onClose: () => void
   onSave: (config: UpdateProfileNodeData) => void
+  onDelete?: () => void
   initialConfig?: UpdateProfileNodeData
 }
 
@@ -43,6 +44,7 @@ const UpdateProfileNodeConfig: React.FC<UpdateProfileNodeConfigProps> = ({
   open,
   onClose,
   onSave,
+  onDelete,
   initialConfig
 }) => {
   const [updates, setUpdates] = useState<Array<{
@@ -72,9 +74,9 @@ const UpdateProfileNodeConfig: React.FC<UpdateProfileNodeConfigProps> = ({
     setUpdates([...updates, newUpdate])
   }
 
-  const updateField = (id: string, updates: Partial<typeof updates[0]>) => {
+  const updateField = (id: string, fieldUpdates: Partial<typeof updates[0]>) => {
     setUpdates(updates.map(update => 
-      update.id === id ? { ...update, ...updates } : update
+      update.id === id ? { ...update, ...fieldUpdates } : update
     ))
   }
 
@@ -192,6 +194,11 @@ const UpdateProfileNodeConfig: React.FC<UpdateProfileNodeConfigProps> = ({
       </DialogContent>
       
       <DialogActions>
+        {onDelete && (
+          <Button onClick={onDelete} color="error" variant="outlined">
+            Delete Node
+          </Button>
+        )}
         <Button onClick={handleCancel} color="secondary">
           Cancel
         </Button>

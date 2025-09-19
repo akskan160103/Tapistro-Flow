@@ -27,6 +27,7 @@ interface DecisionSplitNodeConfigProps {
   open: boolean
   onClose: () => void
   onSave: (config: DecisionSplitNodeData) => void
+  onDelete?: () => void
   initialConfig?: DecisionSplitNodeData
 }
 
@@ -45,6 +46,7 @@ const DecisionSplitNodeConfig: React.FC<DecisionSplitNodeConfigProps> = ({
   open,
   onClose,
   onSave,
+  onDelete,
   initialConfig
 }) => {
   const [conditions, setConditions] = useState<Array<{
@@ -205,6 +207,11 @@ const DecisionSplitNodeConfig: React.FC<DecisionSplitNodeConfigProps> = ({
       </DialogContent>
       
       <DialogActions>
+        {onDelete && (
+          <Button onClick={onDelete} color="error" variant="outlined">
+            Delete Node
+          </Button>
+        )}
         <Button onClick={handleCancel} color="secondary">
           Cancel
         </Button>

@@ -9,8 +9,12 @@ import WorkflowManager from '../WorkflowManager/WorkflowManager';
 import { 
   WaitNodeConfig, 
   SendEmailNodeConfig,
+  UpdateProfileNodeConfig,
+  DecisionSplitNodeConfig,
   type WaitNodeData,
-  type SendEmailNodeData
+  type SendEmailNodeData,
+  type UpdateProfileNodeData,
+  type DecisionSplitNodeData
 } from '../NodeConfigurations';
 
 
@@ -80,10 +84,10 @@ const WorkflowBuilder: React.FC = () => {
 
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     const nodeType = node.data?.nodeType
-    if (nodeType) {
+    if (nodeType && ['wait', 'send-email', 'decision-split', 'update-profile'].includes(nodeType)) {
       setConfiguringNode({
         id: node.id,
-        type: nodeType,
+        type: nodeType as 'wait' | 'send-email' | 'decision-split' | 'update-profile',
         data: node.data
       })
     }
@@ -205,6 +209,66 @@ const WorkflowBuilder: React.FC = () => {
                       ...node.data, 
                       config,
                       label: `Send Email: ${config.subject || 'Untitled'}`
+                    }
+                  }
+                : node
+            ))
+            setConfiguringNode(null)
+          }}
+          onDelete={() => handleDeleteNode(configuringNode.id)}
+          initialConfig={configuringNode.data?.config}
+        />
+      )}
+      
+      {configuringNode?.type === 'update-profile' && (
+        <UpdateProfileNodeConfig
+          open={configuringNode.type === 'update-profile'}
+          onClose={() => setConfiguringNode(null)}
+          onSave={(config: UpdateProfileNodeData) => {
+            // Update node data with configuration and new label
+            const updateCount = config.updates.length;
+            const labelText = updateCount === 0 
+              ? 'Update Profile' 
+              : `Update Profile (${updateCount} field${updateCount === 1 ? '' : 's'})`;
+            
+            setNodes(nodes.map(node => 
+              node.id === configuringNode.id 
+                ? { 
+                    ...node, 
+                    data: { 
+                      ...node.data, 
+                      config,
+                      label: labelText
+                    }
+                  }
+                : node
+            ))
+            setConfiguringNode(null)
+          }}
+          onDelete={() => handleDeleteNode(configuringNode.id)}
+          initialConfig={configuringNode.data?.config}
+        />
+      )}
+      
+      {configuringNode?.type === 'decision-split' && (
+        <DecisionSplitNodeConfig
+          open={configuringNode.type === 'decision-split'}
+          onClose={() => setConfiguringNode(null)}
+          onSave={(config: DecisionSplitNodeData) => {
+            // Update node data with configuration and new label
+            const conditionCount = config.conditions.length;
+            const labelText = conditionCount === 0 
+              ? 'Decision Split' 
+              : `Decision Split (${conditionCount} condition${conditionCount === 1 ? '' : 's'})`;
+            
+            setNodes(nodes.map(node => 
+              node.id === configuringNode.id 
+                ? { 
+                    ...node, 
+                    data: { 
+                      ...node.data, 
+                      config,
+                      label: labelText
                     }
                   }
                 : node
