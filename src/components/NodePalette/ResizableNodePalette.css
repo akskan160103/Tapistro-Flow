@@ -27,11 +27,11 @@
 }
 
 .resizable-node-palette-resize-handle:hover {
-  background-color: rgba(25, 118, 210, 0.2);
+  background-color: var(--tapistro-blue-20);
 }
 
 .resizable-node-palette-resize-handle:active {
-  background-color: rgba(25, 118, 210, 0.3);
+  background-color: var(--tapistro-blue-30);
 }
 
 /* Add a subtle visual indicator */
@@ -51,7 +51,7 @@
 
 .resizable-node-palette-resize-handle:hover::after {
   opacity: 1;
-  background-color: #1976d2;
+  background-color: var(--tapistro-blue);
 }
 
 /* Desktop Layout - Optimized for workflow building */
@@ -95,7 +95,7 @@
   .node-palette-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #1976d2;
+    color: var(--tapistro-blue);
     margin-bottom: 16px;
     text-align: center;
   }

@@ -182,12 +182,17 @@ const WorkflowBuilder: React.FC = () => {
   return (
     <Box className="workflow-builder-container">
       <Paper className="workflow-builder-header">
-        <Typography className="workflow-builder-title" component="h1">
-          Tapistro Flow
-        </Typography>
-        <Typography className="workflow-builder-subtitle">
-          Visual Workflow Builder
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <img src="/tapistro-logo.avif" alt="Tapistro" height="32" />
+          <Box>
+            <Typography className="workflow-builder-title" component="h1">
+              Tapistro Flow
+            </Typography>
+            <Typography className="workflow-builder-subtitle">
+              Visual Workflow Builder
+            </Typography>
+          </Box>
+        </Box>
       </Paper>
       
       {!isMobile && (

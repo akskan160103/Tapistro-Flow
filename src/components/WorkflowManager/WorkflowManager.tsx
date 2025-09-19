@@ -238,7 +238,6 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         {currentWorkflow && (
           <Chip
             label={`Current: ${currentWorkflow.name}`}
-            color="primary"
             variant="outlined"
           />
         )}
@@ -290,7 +289,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSaveAsDialogOpen(false)} disabled={loading}>Cancel</Button>
-          <Button onClick={handleSaveAsWorkflow} variant="contained" disabled={loading || hasValidationErrors}>
+          <Button onClick={handleSaveAsWorkflow} variant="contained" color="primary" disabled={loading || hasValidationErrors}>
             {loading ? <CircularProgress size={20} /> : 'Save'}
           </Button>
         </DialogActions>

@@ -30,7 +30,7 @@
 
 .workflow-manager-user-chip {
   background-color: #e3f2fd;
-  color: #1976d2;
+  color: var(--tapistro-blue);
 }
 
 .workflow-manager-logout-button {
@@ -93,7 +93,7 @@
 }
 
 .workflow-manager-load-button:hover {
-  background-color: #1976d2;
+  background-color: var(--tapistro-blue);
 }
 
 .workflow-manager-delete-button {

@@ -52,9 +52,12 @@ const LoginPage: React.FC = () => {
             maxWidth: 400
           }}
         >
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            Tapistro Flow
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+            <img src="/tapistro-logo.avif" alt="Tapistro" height="40" />
+            <Typography variant="h4" component="h1">
+              Tapistro Flow
+            </Typography>
+          </Box>
           
           <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 3 }}>
             Enter your username to start building workflows
