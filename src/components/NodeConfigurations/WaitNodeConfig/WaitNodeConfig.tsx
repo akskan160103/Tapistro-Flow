@@ -37,24 +37,32 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
   onDelete,
   initialConfig
 }) => {
-  const [duration, setDuration] = useState<number>(1)
+  const [duration, setDuration] = useState<string>('1')
   const [timeUnit, setTimeUnit] = useState<'seconds' | 'minutes' | 'hours' | 'days'>('minutes')
+  const [durationError, setDurationError] = useState<string>('')
 
   // Load initial configuration when dialog opens
   useEffect(() => {
     if (open && initialConfig) {
-      setDuration(initialConfig.duration)
+      setDuration(initialConfig.duration.toString())
       setTimeUnit(initialConfig.timeUnit)
     } else if (open) {
       // Reset to defaults when creating new node
-      setDuration(1)
+      setDuration('1')
       setTimeUnit('minutes')
     }
   }, [open, initialConfig])
 
   const handleSave = () => {
+    // Convert string to number and validate
+    const durationNum = parseInt(duration)
+    if (isNaN(durationNum) || durationNum <= 0) {
+      setDurationError('Please enter a valid duration (positive number)')
+      return // Don't save if invalid
+    }
+    
     const config: WaitNodeData = {
-      duration,
+      duration: durationNum,
       timeUnit
     }
     onSave(config)
@@ -66,8 +74,9 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
   }
 
   // Helper function to pluralize time units for preview
-  const pluralizeTimeUnit = (duration: number, timeUnit: string) => {
-    if (duration === 1) {
+  const pluralizeTimeUnit = (duration: string, timeUnit: string) => {
+    const durationNum = parseInt(duration)
+    if (isNaN(durationNum) || durationNum === 1) {
       return timeUnit.slice(0, -1); // Remove 's' from end
     }
     return timeUnit;
@@ -89,13 +98,15 @@ const WaitNodeConfig: React.FC<WaitNodeConfigProps> = ({
             value={duration}
             onChange={(e) => {
               const value = e.target.value
-              // Only allow positive integers
+              // Only allow positive integers or empty string
               if (value === '' || /^\d+$/.test(value)) {
-                setDuration(value === '' ? 1 : Number(value))
+                setDuration(value)
+                setDurationError('') // Clear error when valid input
               }
             }}
             fullWidth
-            helperText="Enter the wait duration"
+            error={!!durationError}
+            helperText={durationError || "Enter the wait duration"}
           />
           
           <FormControl fullWidth>

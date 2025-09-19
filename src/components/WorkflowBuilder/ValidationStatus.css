@@ -1,0 +1,37 @@
+.validation-error-container {
+  padding: 16px;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.validation-warning-container {
+  padding: 16px;
+  background-color: #fff3e0;
+  border: 1px solid #ff9800;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.validation-error-title {
+  color: #d32f2f;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.validation-warning-title {
+  color: #f57c00;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.validation-error-message {
+  color: #d32f2f;
+  margin-left: 16px;
+}
+
+.validation-warning-message {
+  color: #f57c00;
+  margin-left: 16px;
+}

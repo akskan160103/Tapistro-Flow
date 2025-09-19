@@ -29,19 +29,24 @@ interface WorkflowManagerProps {
   currentEdges: any[];
   onLoadWorkflow: (workflow: Workflow) => void;
   onClearWorkflow: () => void;
+  validationResult?: { isValid: boolean; errors: any[]; warnings: any[] } | null;
 }
 
 const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   currentNodes,
   currentEdges,
   onLoadWorkflow,
-  onClearWorkflow
+  onClearWorkflow,
+  validationResult
 }) => {
   const { username, logout } = useUser();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [currentWorkflowId, setCurrentWorkflowId] = useState<string | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveAsDialogOpen, setSaveAsDialogOpen] = useState(false);
+  
+  // Check if save should be disabled due to validation errors
+  const hasValidationErrors = Boolean(validationResult && !validationResult.isValid);
   const [workflowName, setWorkflowName] = useState('');
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -178,7 +183,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             variant="contained"
             startIcon={<Save />}
             onClick={() => setSaveAsDialogOpen(true)}
-            disabled={currentNodes.length === 0}
+            disabled={currentNodes.length === 0 || hasValidationErrors}
           >
             Save Workflow
           </Button>
@@ -188,7 +193,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
           variant="outlined"
           startIcon={loading ? <CircularProgress size={20} /> : <Save />}
           onClick={() => setSaveAsDialogOpen(true)}
-          disabled={currentNodes.length === 0 || loading}
+          disabled={currentNodes.length === 0 || loading || hasValidationErrors}
         >
           Save As...
         </Button>
@@ -258,7 +263,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSaveAsDialogOpen(false)} disabled={loading}>Cancel</Button>
-          <Button onClick={handleSaveAsWorkflow} variant="contained" disabled={loading}>
+          <Button onClick={handleSaveAsWorkflow} variant="contained" disabled={loading || hasValidationErrors}>
             {loading ? <CircularProgress size={20} /> : 'Save'}
           </Button>
         </DialogActions>

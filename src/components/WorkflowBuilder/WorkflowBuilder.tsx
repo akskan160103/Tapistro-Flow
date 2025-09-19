@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { ReactFlow, Background, Controls, MiniMap, Node, addEdge, Connection, useNodesState, useEdgesState, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -16,6 +16,8 @@ import {
   type UpdateProfileNodeData,
   type DecisionSplitNodeData
 } from '../NodeConfigurations';
+import { WorkflowValidator, type ValidationResult } from '../../lib/workflowValidation';
+import './ValidationStatus.css';
 
 
 const WorkflowBuilder: React.FC = () => {
@@ -26,6 +28,7 @@ const WorkflowBuilder: React.FC = () => {
     type: 'wait' | 'send-email' | 'decision-split' | 'update-profile'
     data?: any
   } | null>(null);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -55,14 +58,37 @@ const WorkflowBuilder: React.FC = () => {
         y: event.clientY - 100, // Adjust for header height
       };
 
+      // Create default config based on node type
+      let defaultConfig = null;
+      let defaultLabel = nodeType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      
+      switch (nodeType) {
+        case 'wait':
+          defaultConfig = { duration: 1, timeUnit: 'minutes' };
+          defaultLabel = 'Wait for 1 minute';
+          break;
+        case 'send-email':
+          defaultConfig = { subject: 'New Email', template: '', recipients: [], recipientType: 'all' };
+          defaultLabel = 'Send Email: New Email';
+          break;
+        case 'decision-split':
+          defaultConfig = { conditions: [], defaultPath: 'Default' };
+          defaultLabel = 'Decision Split';
+          break;
+        case 'update-profile':
+          defaultConfig = { updates: [] };
+          defaultLabel = 'Update Profile';
+          break;
+      }
+
       const newNode: Node = {
         id: `${nodeType}-${Date.now()}`,
         type: 'default',
         position,
         data: { 
-          label: nodeType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          label: defaultLabel,
           nodeType,
-          config: null
+          config: defaultConfig
         },
       };
 
@@ -110,6 +136,18 @@ const WorkflowBuilder: React.FC = () => {
   // Check if workflow is empty (no nodes)
   const isWorkflowEmpty = nodes.length === 0;
 
+  // Validate workflow whenever nodes or edges change
+  const validateWorkflow = useCallback(() => {
+    const result = WorkflowValidator.validateWorkflow(nodes, edges);
+    setValidationResult(result);
+    return result;
+  }, [nodes, edges]);
+
+  // Run validation when nodes or edges change
+  useEffect(() => {
+    validateWorkflow();
+  }, [validateWorkflow]);
+
   // Helper function to pluralize time units
   const pluralizeTimeUnit = (duration: number, timeUnit: string) => {
     if (duration === 1) {
@@ -134,12 +172,41 @@ const WorkflowBuilder: React.FC = () => {
         currentEdges={edges}
         onLoadWorkflow={handleLoadWorkflow}
         onClearWorkflow={handleClearWorkflow}
+        validationResult={validationResult}
       />
       
       <Box sx={{ display: 'flex', flex: 1, gap: 2 }}>
         <NodePalette onDragStart={onDragStart} />
         
-        <Box sx={{ flex: 1, border: '1px solid #e0e0e0', position: 'relative' }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Validation Status - Only show structural issues */}
+          {validationResult && !validationResult.isValid && (
+            <Box className="validation-error-container">
+              <Typography variant="subtitle2" className="validation-error-title" gutterBottom>
+                Workflow Structure Issues:
+              </Typography>
+              {validationResult.errors.map((error, index) => (
+                <Typography key={index} variant="body2" className="validation-error-message">
+                  • {error.message}
+                </Typography>
+              ))}
+            </Box>
+          )}
+          
+          {validationResult && validationResult.warnings.length > 0 && (
+            <Box className="validation-warning-container">
+              <Typography variant="subtitle2" className="validation-warning-title" gutterBottom>
+                Workflow Warnings:
+              </Typography>
+              {validationResult.warnings.map((warning, index) => (
+                <Typography key={index} variant="body2" className="validation-warning-message">
+                  • {warning.message}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        
+          <Box sx={{ flex: 1, border: '1px solid #e0e0e0', position: 'relative' }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -197,6 +264,7 @@ const WorkflowBuilder: React.FC = () => {
               </Typography>
             </Box>
           )}
+          </Box>
         </Box>
       </Box>
       
